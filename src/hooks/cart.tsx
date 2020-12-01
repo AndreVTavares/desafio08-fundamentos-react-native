@@ -30,23 +30,109 @@ const CartProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     async function loadProducts(): Promise<void> {
-      // TODO LOAD ITEMS FROM ASYNC STORAGE
+      const productsAsync = await AsyncStorage.getItem('@Desafio8:products');
+
+      if (productsAsync) {
+        setProducts(JSON.parse(productsAsync));
+      }
     }
 
     loadProducts();
   }, []);
 
-  const addToCart = useCallback(async product => {
-    // TODO ADD A NEW ITEM TO THE CART
-  }, []);
+  const addToCart = useCallback(
+    async product => {
+      const productFinded = products.find(
+        productFind => productFind.id === product.id,
+      );
 
-  const increment = useCallback(async id => {
-    // TODO INCREMENTS A PRODUCT QUANTITY IN THE CART
-  }, []);
+      // AsyncStorage vai ser praticamente isso map comparando o id que vier e atualizar o valor da quantity
+      if (productFinded) {
+        const newProducts = products.map(productMap => {
+          if (productMap.id === productFinded.id) {
+            return {
+              id: productFinded.id,
+              title: productFinded.title,
+              image_url: productFinded.image_url,
+              price: productFinded.price,
+              quantity: productFinded.quantity + 1,
+            };
+          }
+          return productMap;
+        });
 
-  const decrement = useCallback(async id => {
-    // TODO DECREMENTS A PRODUCT QUANTITY IN THE CART
-  }, []);
+        setProducts(newProducts);
+        await AsyncStorage.setItem(
+          '@Desafio8:products',
+          JSON.stringify(newProducts),
+        );
+      } else {
+        setProducts([
+          ...products,
+          {
+            id: product.id,
+            image_url: product.image_url,
+            price: product.price,
+            title: product.title,
+            quantity: 1,
+          },
+        ]);
+        await AsyncStorage.setItem(
+          '@Desafio8:products',
+          JSON.stringify(products),
+        );
+      }
+    },
+    [products],
+  );
+
+  const increment = useCallback(
+    async id => {
+      const newProducts = products.map(productMap => {
+        if (productMap.id === id) {
+          return {
+            id: productMap.id,
+            title: productMap.title,
+            image_url: productMap.image_url,
+            price: productMap.price,
+            quantity: productMap.quantity + 1,
+          };
+        }
+        return productMap;
+      });
+
+      setProducts(newProducts);
+      await AsyncStorage.setItem(
+        '@Desafio8:products',
+        JSON.stringify(newProducts),
+      );
+    },
+    [products],
+  );
+
+  const decrement = useCallback(
+    async id => {
+      const newProducts = products.map(productMap => {
+        if (productMap.id === id) {
+          return {
+            id: productMap.id,
+            title: productMap.title,
+            image_url: productMap.image_url,
+            price: productMap.price,
+            quantity: productMap.quantity - 1,
+          };
+        }
+        return productMap;
+      });
+
+      setProducts(newProducts);
+      await AsyncStorage.setItem(
+        '@Desafio8:products',
+        JSON.stringify(newProducts),
+      );
+    },
+    [products],
+  );
 
   const value = React.useMemo(
     () => ({ addToCart, increment, decrement, products }),

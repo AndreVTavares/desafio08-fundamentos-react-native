@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import React, { useState, useMemo } from 'react';
 
 import { useNavigation } from '@react-navigation/native';
@@ -24,15 +25,24 @@ const FloatingCart: React.FC = () => {
   const navigation = useNavigation();
 
   const cartTotal = useMemo(() => {
-    // TODO RETURN THE SUM OF THE PRICE FROM ALL ITEMS IN THE CART
+    const total = products.reduce((accumulator, product) => {
+      const totalProduct = product.quantity * product.price;
+      accumulator += totalProduct;
 
-    return formatValue(0);
+      return accumulator;
+    }, 0);
+
+    return formatValue(total);
   }, [products]);
 
   const totalItensInCart = useMemo(() => {
-    // TODO RETURN THE SUM OF THE QUANTITY OF THE PRODUCTS IN THE CART
+    const total = products.reduce((accumulator, product) => {
+      accumulator += product.quantity;
 
-    return 0;
+      return accumulator;
+    }, 0);
+
+    return total;
   }, [products]);
 
   return (
@@ -41,7 +51,12 @@ const FloatingCart: React.FC = () => {
         testID="navigate-to-cart-button"
         onPress={() => navigation.navigate('Cart')}
       >
-        <FeatherIcon name="shopping-cart" size={24} color="#fff" />
+        <FeatherIcon
+          onPress={() => navigation.navigate('Cart')}
+          name="shopping-cart"
+          size={24}
+          color="#fff"
+        />
         <CartButtonText>{`${totalItensInCart} itens`}</CartButtonText>
       </CartButton>
 
